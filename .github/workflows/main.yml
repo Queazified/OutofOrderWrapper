@@ -10,25 +10,25 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '7.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore ScreensaverWrapper/ScreensaverWrapper.csproj
+      - name: Restore dependencies
+        run: dotnet restore ScreensaverWrapper/ScreensaverWrapper.csproj
 
-    - name: Build project
-      run: dotnet publish ScreensaverWrapper/ScreensaverWrapper.csproj -c Release -o publish --self-contained false
+      - name: Build project
+        run: dotnet publish ScreensaverWrapper/ScreensaverWrapper.csproj -c Release -o publish --self-contained false
 
-    - name: Copy screensaver
-      run: xcopy screensaver\* publish\ /Y /I
+      - name: Copy screensaver
+        run: robocopy screensaver publish /E /NFL /NDL /NJH /NJS /nc /ns /np
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4   # ✅ UPDATED HERE
-      with:
-        name: ScreensaverWrapper
-        path: publish
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScreensaverWrapper
+          path: publish

@@ -5,6 +5,10 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>OutOfOrder.ico</ApplicationIcon>
+
+    <AssemblyCompany>Queazified.co.uk</AssemblyCompany>
+    <Company>Queazified.co.uk</Company>
   </PropertyGroup>
 
 </Project>

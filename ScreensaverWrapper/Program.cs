@@ -7,7 +7,7 @@ class Program
 {
     static void Main()
     {
-        // Get path to screensaver relative to executable
+        // Path to the screensaver file relative to the EXE
         string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screensaver", "MyScreensaver.scr");
 
         if (!File.Exists(path))
@@ -20,10 +20,11 @@ class Program
         {
             Process p = new Process();
             p.StartInfo.FileName = path;
+            p.StartInfo.Arguments = "/s";  // Run screensaver in full-screen mode
             p.StartInfo.UseShellExecute = true;
             p.Start();
 
-            // Wait for the screensaver process to exit
+            // Wait until the screensaver exits
             p.WaitForExit();
 
             // Short delay before restarting

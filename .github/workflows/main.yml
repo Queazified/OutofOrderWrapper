@@ -25,7 +25,7 @@ jobs:
         run: dotnet publish ScreensaverWrapper/ScreensaverWrapper.csproj -c Release -o publish --self-contained false
 
       - name: Copy screensaver
-        run: robocopy screensaver publish /E /NFL /NDL /NJH /NJS /nc /ns /np
+        run: xcopy screensaver\* publish\ /Y /I
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

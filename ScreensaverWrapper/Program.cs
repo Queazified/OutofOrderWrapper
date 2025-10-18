@@ -8,7 +8,7 @@ class Program
     static void Main()
     {
         // Path to the screensaver file relative to the EXE
-        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screensaver", "MyScreensaver.scr");
+        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screensaver", "Screensaver.scr");
 
         if (!File.Exists(path))
         {

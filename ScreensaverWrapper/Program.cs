@@ -171,8 +171,8 @@ class BlockingForm : Form
         using var curProcess = Process.GetCurrentProcess();
         using var curModule = curProcess.MainModule ?? throw new InvalidOperationException("Failed to get main module");
         
-        return SetWindowsHookEx((int)WH_KEYBOARD_LL, proc,
-            GetModuleHandle(curModule.ModuleName ?? string.Empty), 0);
+        return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
+            GetModuleHandle(curModule.ModuleName ?? string.Empty), 0u); // Added 'u' suffix for uint
     }
 
     private static IntPtr LowLevelProc(int nCode, IntPtr wParam, IntPtr lParam)

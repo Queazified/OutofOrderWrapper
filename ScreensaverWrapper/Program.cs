@@ -87,39 +87,57 @@ class Program
 
 class BlockingForm : Form
 {
+    private const int WH_KEYBOARD_LL = 13;
+    private const int WH_MOUSE_LL = 14;
+    private static IntPtr hookId = IntPtr.Zero;
+    
     public BlockingForm()
     {
-        // Make form cover all screens
+        // Cover all screens
         this.Bounds = SystemInformation.VirtualScreen;
-        
-        // Make it transparent and borderless
         this.FormBorderStyle = FormBorderStyle.None;
         this.BackColor = Color.Black;
-        this.Opacity = 0.01; // Almost invisible
-        this.TransparencyKey = Color.Black;
+        this.Opacity = 0.1;  // Slightly visible to ensure it's working
         
-        // Keep on top
+        // Make it block input but allow click-through
         this.TopMost = true;
-        
-        // Prevent alt+tab and other window switching
         this.ShowInTaskbar = false;
         this.ShowIcon = false;
         
-        // Handle all input
+        // Block all input
         this.KeyPreview = true;
         this.KeyDown += (s,e) => e.Handled = true;
         this.KeyUp += (s,e) => e.Handled = true;
-        this.MouseDown += HandleMouse;
-        this.MouseUp += HandleMouse;
-        this.MouseMove += (s,e) => Cursor.Position = new Point(0,0);
+        this.KeyPress += (s,e) => e.Handled = true;
+        
+        // Block mouse
+        this.MouseDown += (s,e) => BlockMouse();
+        this.MouseUp += (s,e) => BlockMouse();
+        this.MouseMove += (s,e) => BlockMouse();
+        this.MouseClick += (s,e) => BlockMouse();
+        this.MouseDoubleClick += (s,e) => BlockMouse();
+
+        // Set hooks
+        hookId = SetHook(LowLevelProc);
     }
 
-    private void HandleMouse(object sender, MouseEventArgs e)
+    private void BlockMouse()
     {
-        // Reset mouse position to corner
-        Cursor.Position = new Point(0,0);
-        // Consume the event
-        ((Form)sender).Capture = true;
+        Cursor.Position = new Point(0, 0);
+        this.Capture = true;
+        this.BringToFront();
+    }
+
+    protected override void WndProc(ref Message m)
+    {
+        const int WM_SYSCOMMAND = 0x0112;
+        const int SC_CLOSE = 0xF060;
+
+        if (m.Msg == WM_SYSCOMMAND && ((int)m.WParam == SC_CLOSE))
+        {
+            return; // Prevent closing
+        }
+        base.WndProc(ref m);
     }
 
     protected override CreateParams CreateParams
@@ -128,8 +146,46 @@ class BlockingForm : Form
             CreateParams cp = base.CreateParams;
             cp.ExStyle |= 0x80000 /* WS_EX_LAYERED */ |
                          0x20 /* WS_EX_TRANSPARENT */ |
-                         0x80 /* WS_EX_TOOLWINDOW */;
+                         0x80 /* WS_EX_TOOLWINDOW */ |
+                         0x08000000 /* WS_EX_NOACTIVATE */;
+            cp.Style |= 0x80000000 /* WS_POPUP */;
             return cp;
         }
     }
+
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        if (hookId != IntPtr.Zero)
+        {
+            UnhookWindowsHookEx(hookId);
+        }
+        base.OnFormClosing(e);
+    }
+
+    private delegate IntPtr LowLevelHookProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+    private static IntPtr SetHook(LowLevelHookProc proc)
+    {
+        using (Process curProcess = Process.GetCurrentProcess())
+        using (ProcessModule curModule = curProcess.MainModule)
+        {
+            return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
+                GetModuleHandle(curModule.ModuleName), 0);
+        }
+    }
+
+    private static IntPtr LowLevelProc(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        return (IntPtr)1; // Block all keyboard input
+    }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelHookProc lpfn, IntPtr hMod, uint dwThreadId);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    private static extern IntPtr GetModuleHandle(string lpModuleName);
 }

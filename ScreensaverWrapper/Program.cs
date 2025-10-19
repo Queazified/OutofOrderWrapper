@@ -12,14 +12,21 @@ class Program
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
         
-        // Path to the screensaver file relative to the EXE
-        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screensaver", "Screensaver.scr");
+        // Look for screensaver in same directory as exe
+        string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Screensaver.scr");
+        string altPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screensaver", "Screensaver.scr");
 
-        if (!File.Exists(path))
+        if (!File.Exists(path) && !File.Exists(altPath))
         {
-            MessageBox.Show($"Screensaver not found: {path}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Screensaver not found at:\n{path}\nor\n{altPath}", 
+                "Screensaver Not Found", 
+                MessageBoxButtons.OK, 
+                MessageBoxIcon.Error);
             return;
         }
+
+        // Use whichever path exists
+        string screensaverPath = File.Exists(path) ? path : altPath;
 
         while (true)
         {
@@ -29,14 +36,14 @@ class Program
                 {
                     StartInfo = new ProcessStartInfo
                     {
-                        FileName = path,
+                        FileName = screensaverPath,
                         Arguments = "/s",
                         UseShellExecute = true,
-                        Verb = "runas",
                         WindowStyle = ProcessWindowStyle.Maximized
                     }
                 };
                 
+                Console.WriteLine($"Launching screensaver from: {screensaverPath}");
                 p.Start();
                 ShowWindow(GetConsoleWindow(), SW_HIDE);
                 p.WaitForExit();
@@ -44,7 +51,11 @@ class Program
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    $"Error running screensaver:\n{ex.Message}\n\nPath: {screensaverPath}", 
+                    "Screensaver Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
                 Thread.Sleep(5000);
             }
         }

@@ -9,6 +9,8 @@ This repository wraps your OutOfOrder screensaver `.scr` so it:
 
 ## Usage
 
-1. Run `ScreensaverWrapper.exe` from the `publish` folder.
-2. Make sure `screensaver/MyScreensaver.scr` is in the same folder.
-3. The screensaver will loop forever and restart automatically if it exits.
+1. Copy your screensaver file as `Screensaver.scr` to the same directory as `ScreensaverWrapper.exe`
+2. Run `ScreensaverWrapper.exe`
+3. The screensaver will loop forever and restart automatically if it exits
+
+Note: The screensaver file can also be placed in a `screensaver` subfolder if preferred.

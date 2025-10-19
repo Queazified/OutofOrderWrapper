@@ -37,15 +37,24 @@ class Program
                     StartInfo = new ProcessStartInfo
                     {
                         FileName = screensaverPath,
-                        Arguments = "/s",
+                        Arguments = "/s /p 0", // Run in full screen mode
                         UseShellExecute = true,
-                        WindowStyle = ProcessWindowStyle.Maximized
+                        Verb = "runas", // Request admin rights
+                        WindowStyle = ProcessWindowStyle.Maximized,
+                        CreateNoWindow = false,
+                        RedirectStandardError = false,
+                        RedirectStandardOutput = false
                     }
                 };
-                
-                Console.WriteLine($"Launching screensaver from: {screensaverPath}");
-                p.Start();
+
+                // Hide console before starting screensaver
                 ShowWindow(GetConsoleWindow(), SW_HIDE);
+                
+                // Set current process to background
+                SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
+                
+                p.Start();
+                p.PriorityClass = ProcessPriorityClass.AboveNormal;
                 p.WaitForExit();
                 Thread.Sleep(1000);
             }
@@ -67,5 +76,12 @@ class Program
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    static extern bool SetPriorityClass(IntPtr handle, int priorityClass);
+    
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    static extern IntPtr GetCurrentProcess();
+    
     const int SW_HIDE = 0;
+    const int IDLE_PRIORITY_CLASS = 0x00000040;
 }

@@ -36,25 +36,18 @@ class Program
                 {
                     StartInfo = new ProcessStartInfo
                     {
-                        FileName = screensaverPath,
-                        Arguments = "/s /p 0", // Run in full screen mode
+                        FileName = "cmd.exe",
+                        Arguments = $"/c \"{screensaverPath}\" /s",
                         UseShellExecute = true,
-                        Verb = "runas", // Request admin rights
-                        WindowStyle = ProcessWindowStyle.Maximized,
-                        CreateNoWindow = false,
-                        RedirectStandardError = false,
-                        RedirectStandardOutput = false
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        CreateNoWindow = true
                     }
                 };
 
-                // Hide console before starting screensaver
+                // Hide our window
                 ShowWindow(GetConsoleWindow(), SW_HIDE);
                 
-                // Set current process to background
-                SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
-                
                 p.Start();
-                p.PriorityClass = ProcessPriorityClass.AboveNormal;
                 p.WaitForExit();
                 Thread.Sleep(1000);
             }

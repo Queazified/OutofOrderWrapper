@@ -105,12 +105,21 @@ class BlockingForm : Form
         this.ShowInTaskbar = false;
         this.ShowIcon = false;
         
-        // Handle all input to prevent it reaching screensaver
+        // Handle all input
         this.KeyPreview = true;
         this.KeyDown += (s,e) => e.Handled = true;
         this.KeyUp += (s,e) => e.Handled = true;
-        this.MouseClick += (s,e) => e.Handled = true;
+        this.MouseDown += HandleMouse;
+        this.MouseUp += HandleMouse;
         this.MouseMove += (s,e) => Cursor.Position = new Point(0,0);
+    }
+
+    private void HandleMouse(object sender, MouseEventArgs e)
+    {
+        // Reset mouse position to corner
+        Cursor.Position = new Point(0,0);
+        // Consume the event
+        ((Form)sender).Capture = true;
     }
 
     protected override CreateParams CreateParams

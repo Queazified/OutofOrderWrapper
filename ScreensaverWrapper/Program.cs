@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
@@ -28,6 +29,10 @@ class Program
         // Use whichever path exists
         string screensaverPath = File.Exists(path) ? path : altPath;
 
+        // Create input blocking window
+        using var blocker = new BlockingForm();
+        blocker.Show();
+
         while (true)
         {
             try
@@ -46,6 +51,7 @@ class Program
 
                 // Hide our window
                 ShowWindow(GetConsoleWindow(), SW_HIDE);
+                blocker.BringToFront();
                 
                 p.Start();
                 p.WaitForExit();
@@ -77,4 +83,44 @@ class Program
     
     const int SW_HIDE = 0;
     const int IDLE_PRIORITY_CLASS = 0x00000040;
+}
+
+class BlockingForm : Form
+{
+    public BlockingForm()
+    {
+        // Make form cover all screens
+        this.Bounds = SystemInformation.VirtualScreen;
+        
+        // Make it transparent and borderless
+        this.FormBorderStyle = FormBorderStyle.None;
+        this.BackColor = Color.Black;
+        this.Opacity = 0.01; // Almost invisible
+        this.TransparencyKey = Color.Black;
+        
+        // Keep on top
+        this.TopMost = true;
+        
+        // Prevent alt+tab and other window switching
+        this.ShowInTaskbar = false;
+        this.ShowIcon = false;
+        
+        // Handle all input to prevent it reaching screensaver
+        this.KeyPreview = true;
+        this.KeyDown += (s,e) => e.Handled = true;
+        this.KeyUp += (s,e) => e.Handled = true;
+        this.MouseClick += (s,e) => e.Handled = true;
+        this.MouseMove += (s,e) => Cursor.Position = new Point(0,0);
+    }
+
+    protected override CreateParams CreateParams
+    {
+        get {
+            CreateParams cp = base.CreateParams;
+            cp.ExStyle |= 0x80000 /* WS_EX_LAYERED */ |
+                         0x20 /* WS_EX_TRANSPARENT */ |
+                         0x80 /* WS_EX_TOOLWINDOW */;
+            return cp;
+        }
+    }
 }

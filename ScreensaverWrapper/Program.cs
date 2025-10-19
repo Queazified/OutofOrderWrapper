@@ -7,6 +7,8 @@ class Program
 {
     static void Main()
     {
+        Console.WriteLine("Starting screensaver wrapper...");
+        
         // Path to the screensaver file relative to the EXE
         string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "screensaver", "Screensaver.scr");
 
@@ -16,19 +18,34 @@ class Program
             return;
         }
 
+        Console.WriteLine($"Found screensaver at: {path}");
+
         while (true)
         {
-            Process p = new Process();
-            p.StartInfo.FileName = path;
-            p.StartInfo.Arguments = "/s";  // Run screensaver in full-screen mode
-            p.StartInfo.UseShellExecute = true;
-            p.Start();
+            try
+            {
+                Process p = new Process();
+                p.StartInfo.FileName = path;
+                p.StartInfo.Arguments = "/s";  // Run screensaver in full-screen mode
+                p.StartInfo.UseShellExecute = true;
+                p.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
+                p.StartInfo.CreateNoWindow = false;
 
-            // Wait until the screensaver exits
-            p.WaitForExit();
+                Console.WriteLine("Launching screensaver...");
+                p.Start();
 
-            // Short delay before restarting
-            Thread.Sleep(500);
+                // Wait until the screensaver exits
+                p.WaitForExit();
+                Console.WriteLine("Screensaver exited, restarting...");
+
+                // Short delay before restarting
+                Thread.Sleep(1000);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                Thread.Sleep(5000); // Wait longer if there's an error
+            }
         }
     }
 }

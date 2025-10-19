@@ -8,16 +8,17 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>OutOfOrder.ico</ApplicationIcon>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-
+    
+    <Version>1.0.0.0</Version>
     <AssemblyTitle>Out of Order Screensaver Wrapper</AssemblyTitle>
+    <Product>Out of Order Screensaver Wrapper</Product>
     <Description>Wrapper for Out of Order Screensaver</Description>
     <Company>Queazified.co.uk</Company>
-    <Product>Out of Order Screensaver Wrapper</Product>
     <Copyright>Copyright © Queazified.co.uk 2024</Copyright>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <NeutralLanguage>en</NeutralLanguage>
     <PackageId>ScreensaverWrapper</PackageId>
-    <AssemblyGuid>{2E32D403-66D7-4513-B94F-FFABCD097788}</AssemblyGuid>
   </PropertyGroup>
 
 </Project>

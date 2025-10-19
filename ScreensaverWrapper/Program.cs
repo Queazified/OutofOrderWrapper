@@ -90,6 +90,7 @@ class BlockingForm : Form
     private const int WH_KEYBOARD_LL = 13;
     private const int WH_MOUSE_LL = 14;
     private static IntPtr hookId = IntPtr.Zero;
+    private static LowLevelHookProc? hookProc; // Keep delegate alive
     
     public BlockingForm()
     {
@@ -118,7 +119,8 @@ class BlockingForm : Form
         this.MouseDoubleClick += (s,e) => BlockMouse();
 
         // Set hooks
-        hookId = SetHook(LowLevelProc);
+        hookProc = LowLevelProc; // Store delegate reference
+        hookId = SetHook(hookProc);
     }
 
     private void BlockMouse()
@@ -166,18 +168,25 @@ class BlockingForm : Form
 
     private static IntPtr SetHook(LowLevelHookProc proc)
     {
-        using (Process curProcess = Process.GetCurrentProcess())
-        using (ProcessModule curModule = curProcess.MainModule)
-        {
-            return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
-                GetModuleHandle(curModule.ModuleName), 0);
-        }
+        using var curProcess = Process.GetCurrentProcess();
+        using var curModule = curProcess.MainModule ?? throw new InvalidOperationException("Failed to get main module");
+        
+        return SetWindowsHookEx((int)WH_KEYBOARD_LL, proc,
+            GetModuleHandle(curModule.ModuleName ?? string.Empty), 0);
     }
 
     private static IntPtr LowLevelProc(int nCode, IntPtr wParam, IntPtr lParam)
     {
-        return (IntPtr)1; // Block all keyboard input
+        if (nCode >= 0)
+        {
+            return (IntPtr)1; // Block input
+        }
+        return CallNextHookEx(IntPtr.Zero, nCode, wParam, lParam);
     }
+
+    // Add missing P/Invoke
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelHookProc lpfn, IntPtr hMod, uint dwThreadId);

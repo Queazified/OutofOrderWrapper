@@ -2,13 +2,19 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon>OutOfOrder.ico</ApplicationIcon>
 
-    <AssemblyCompany>Queazified.co.uk</AssemblyCompany>
+    <AssemblyTitle>Out of Order Screensaver Wrapper</AssemblyTitle>
+    <Description>Wrapper for Out of Order Screensaver</Description>
     <Company>Queazified.co.uk</Company>
+    <Product>Out of Order Screensaver Wrapper</Product>
+    <Copyright>Copyright © Queazified.co.uk 2024</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
 
 </Project>

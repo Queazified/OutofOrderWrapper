@@ -17,40 +17,35 @@ class Program
 
         if (!File.Exists(path))
         {
-            Console.WriteLine($"Screensaver not found: {path}");
+            MessageBox.Show($"Screensaver not found: {path}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             return;
         }
-
-        Console.WriteLine($"Found screensaver at: {path}");
 
         while (true)
         {
             try
             {
-                Process p = new Process();
-                p.StartInfo.FileName = path;
-                p.StartInfo.Arguments = "/s";  // Run screensaver in full-screen mode
-                p.StartInfo.UseShellExecute = true;
-                p.StartInfo.Verb = "runas"; // Run as administrator
-                p.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
+                using var p = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = path,
+                        Arguments = "/s",
+                        UseShellExecute = true,
+                        Verb = "runas",
+                        WindowStyle = ProcessWindowStyle.Maximized
+                    }
+                };
                 
-                Console.WriteLine("Launching screensaver...");
                 p.Start();
-
-                // Hide console window
                 ShowWindow(GetConsoleWindow(), SW_HIDE);
-
-                // Wait until the screensaver exits
                 p.WaitForExit();
-                Console.WriteLine("Screensaver exited, restarting...");
-
-                // Short delay before restarting
                 Thread.Sleep(1000);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
-                Thread.Sleep(5000); // Wait longer if there's an error
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Thread.Sleep(5000);
             }
         }
     }

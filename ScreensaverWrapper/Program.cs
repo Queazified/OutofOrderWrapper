@@ -172,7 +172,7 @@ class BlockingForm : Form
         using var curModule = curProcess.MainModule ?? throw new InvalidOperationException("Failed to get main module");
         
         return SetWindowsHookEx(WH_KEYBOARD_LL, proc,
-            GetModuleHandle(curModule.ModuleName ?? string.Empty), 0u); // Added 'u' suffix for uint
+            GetModuleHandle(curModule.ModuleName ?? string.Empty), (uint)0); // Cast 0 to uint
     }
 
     private static IntPtr LowLevelProc(int nCode, IntPtr wParam, IntPtr lParam)
@@ -189,7 +189,7 @@ class BlockingForm : Form
     private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
-    private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelHookProc lpfn, IntPtr hMod, uint dwThreadId);
+    private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelHookProc lpfn, IntPtr hMod, int dwThreadId); // Changed uint to int
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
     [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
